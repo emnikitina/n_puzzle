@@ -3,6 +3,20 @@
 #include <ctime>
 #include <fstream>
 #include <vector>
+#include <cmath>
+#include <queue>
+#include <sstream>
+#include "tree.hpp"
+
+using namespace std;
+
+void printArray(int** arr, size_t size) {
+    for (size_t i = 0; i < size; i++) {
+        for (size_t j = 0; j < size; j++)
+            cout << arr[i][j] << " ";
+        cout << endl;
+    }
+}
 
 void generator(int **arr, size_t size) {
     int* sequence = new int[size];
@@ -22,41 +36,14 @@ void generator(int **arr, size_t size) {
     for (size_t i = 0; i < size; i++) {
         for (size_t j = 0; j < size; j++) {
             arr[i][j] = sequence[i * size + j];
-            std::cout << arr[i][j] << " ";
+            cout << arr[i][j] << " ";
         }
-        std::cout << std::endl;
+        cout << endl;
     }
 }
 
-// void generator(int **arr, size_t size) {
-//     int* sequence = new int[size];
-//     int x, y, replace;
-
-//     srand(time(0));
-    
-//     for (size_t i = 0; i < size * size; i++)
-//         sequence[i] = i;
-
-
-//     for (size_t i = 0; i < (size * size) / 2; i++) {
-//         x = rand() % (size * size);
-//         y = rand() % (size * size);
-//         replace = sequence[x];
-//         sequence[x] = sequence[y];
-//         sequence[y] = replace;
-//     }
- 
-//     for (size_t i = 0; i < size; i++) {
-//         for (size_t j = 0; j < size; j++) {
-//             arr[i][j] = sequence[i * size + j];
-//             std::cout << arr[i][j] << " ";
-//         }
-//         std::cout << std::endl;
-//     }
-// }
-
-std::vector<std::string> splitLine(std::string str, std::string sep) {
-    std::vector<std::string> words;
+vector<string> splitLine(string str, string sep) {
+    vector<string> words;
 
 	for (size_t i = 0; i < str.size(); i++) {
         for (size_t j = 0; j < sep.size(); j++) {
@@ -69,68 +56,84 @@ std::vector<std::string> splitLine(std::string str, std::string sep) {
 	return words;
 }
 
-std::string getPureLine(std::string line) {
+string getPureLine(string line) {
     size_t pos;
 
-    if ((pos = line.find_first_of("#")) != std::string::npos)
+    if ((pos = line.find_first_of("#")) != string::npos)
             line = line.substr(0, pos);
-        //std::cout << "new line: " << line << std::endl;
-        size_t found = line.find_first_not_of("1234567890 ");
-        if (found != std::string::npos) {
-            std::cout << "ой, есть не цифровой символ " << line[found] << " в позиции " << found << std::endl;
-            throw ;
-        }
-        else {
-            std::cout << "Все ок!" << std::endl;
-        }
+    size_t found = line.find_first_not_of("1234567890 ");
+    if (found != string::npos) {
+        cout << "ой, есть не цифровой символ " << line[found] << " в позиции " << found << endl;
+        throw ;
+    }
+    // else {
+    //     cout << "Все ок!" << endl;
+    // }
+    return line;
 }
 
-size_t parse(int** arr, char* filename) {
-    std::fstream fin;
-    std::string line;
-    size_t pos, size = 0, i = 0, j = 0;
+size_t getPuzzleSize(char* filename) {
+    fstream fin;
+    size_t size;
+    string line, str;
     
     fin.open(filename);
     if (!fin.is_open())
         throw ;
 
-    while (!size && std::getline(fin, line)) {
-        std::cout << "line: " << line << std::endl;
-        std::string str = getPureLine(line);
+    while (!size && getline(fin, line)) {
+        str = getPureLine(line);
         if (str.size())
-            size = std::stoi(str);
-    }
-    
-    arr = new int* [size];
-    for (size_t i = 0; i < size; i++)
-        arr[i] = new int[size];
-    while (std::getline(fin, line)){
-        std::cout << "line: " << line << std::endl;    
-        i = 0;
-        j = 0;
-
-        
+            size = stoi(str);
     }
     fin.close();
     return size;
 }
 
-void printArray(int** arr, size_t size) {
-    for (size_t i = 0; i < size; i++) {
-        for (size_t j = 0; j < size; j++)
-            std::cout << arr[i][j] << " ";
-        std::cout << std::endl;
+size_t parse(int** arr, char* filename) {
+    fstream fin;
+    string line, str, nbr;
+    size_t size = 0, j = 0;
+    stringstream x;
+    
+    fin.open(filename);
+    if (!fin.is_open())
+        throw ;
+
+    while (!size && getline(fin, line)) {
+        str = getPureLine(line);
+        if (str.size())
+            size = stoi(str);
     }
+    // arr = new int* [size];
+    // std::cout << "parse size: " << size << endl;
+    for (size_t i = 0; i < size; i++) {
+        // arr[i] = new int[size];
+        getline(fin, line);
+        str = getPureLine(line);
+        x << str;   //Перенос строки в поток 
+        j = 0;            
+        while (x >> nbr) {
+            arr[i][j] = stoi(nbr);
+            j++;
+        }
+        x.clear();
+    }
+    // cout << "here\n";
+    // printArray(arr, size);
+    // cout << "after print\n";
+    fin.close();
+    return size;
 }
 
 bool checkSolvability(int** puzzle, size_t size) {
     int inv = 0;
+    
     for (size_t i = 0; i < size * size; i++)
         if (puzzle[i])
-            for (size_t j = 0; j<i; j++)
+            for (size_t j = 0; j < i; j++)
                 if (puzzle[j] > puzzle[i])
                     inv++;
-
     for (size_t i = 0; i < size * size; i++)
         if (puzzle[i] == 0)
             inv += (1 + i / size);
@@ -138,85 +141,127 @@ bool checkSolvability(int** puzzle, size_t size) {
     return (inv & 1);
 }
 
+// bool checkSolvability(int** puzzle, size_t size) {
+//     int inv = 0;
+    
+//     std::cout << "here\n";
+//     for (size_t i = 0; i < size; i++)
+//         for (size_t j = 0; j < size; j++)
+//             if (puzzle[i][j])
+//                 for (size_t k = 0; k < i; k++)
+//                     for (size_t l = 0; l < j; l++)
+//                         if (puzzle[k][l] > puzzle[i][j])
+//                             inv++;             
+//     std::cout << "here2\n";
+//     for (size_t i = 0; i < size; i++)
+//         for (size_t j = 0; j < size; j++)
+//             if (puzzle[i][j] == 0)
+//                 inv += (1 + (i + j) / size);
+//     return (inv & 1);
+// }
+
+int ManhattanHeuristics(int Ax, int Ay, int Bx, int By) {
+    return abs(Ax - Bx) + abs(Ay - By);
+};
+
+float EuclidDistance(int Ax, int Ay, int Bx, int By) {
+    return sqrt(pow(Ax - Bx, 2) + pow(Ay - By, 2));
+};
+
+int ChebyshevHeuristics(int Ax, int Ay, int Bx, int By) {
+    return max(abs(Ax - Bx), abs(Ay - By));
+};
+
+
+
+// void calculateWeights(int** puzzle, int** result, size_t size) {
+
+// };
+
+void generateResultPuzzle(int** result, size_t size) {
+    for (size_t i = 0; i < size; i++) {
+        result[i] = new int[size];
+        for (size_t j = 0; j < size; j++)
+            result[i][j] = -1;
+    }
+
+    int max = size - 1, min = 0, i = 0, j = 0;
+    for (size_t count = 1; count <= size * size; count++) {
+        i = min;
+        j = min;
+        for (; j <= max; j++, count++)
+            result[i][j] = (count == (size * size) ? 0 : count);
+        j--;
+        count--;
+        for (; i <= max; i++, count++)
+            result[i][j] = (count == (size * size) ? 0 : count);
+        i--;
+        count--;
+        for (; j >= min; j--, count++)
+            result[i][j] = (count == (size * size) ? 0 : count);
+        j++;
+        count--;
+        for (; i > min; i--, count++)
+            result[i][j] = (count == (size * size) ? 0 : count);
+        count--;
+        min++;
+        max--;
+    }
+};
+
 int main(int argc, char** argv) {
     int **puzzle = NULL;
     size_t size;
+    string str;
+    // priority_queue<Node> open_set;
 
     if (argc > 2) {
-        std::cerr << "Error! Wrong number of arguments\n";
+        cerr << "Error! Wrong number of arguments\n";
         return 1;
     }
     else if (argc == 2) {
         // open file and read data
-        std::cout << argv[1] << std::endl;
+        cout << argv[1] << endl;
         try
         {
-            size = parse(puzzle, argv[1]);
+            size = getPuzzleSize(argv[1]);
+            puzzle = new int* [size];
+            for (size_t i = 0; i < size; i++)
+                puzzle[i] = new int[size];
+            parse(puzzle, argv[1]);
         }
-        catch(const std::exception& e)
+        catch(const exception& e)
         {
-            std::cerr << e.what() << '\n';
+            cerr << e.what() << '\n';
         }
-        
     }
     else {
-        std::string str;
-        
-        
-        std::cout << "Input field size, please:\n";
-        std::getline(std::cin, str);
+        cout << "Input field size, please:\n";
+        getline(cin, str);
         try
         {
-            size = std::stoi(str);
+            size = stoi(str);
         }
-        catch(const std::exception& e)
+        catch(const exception& e)
         {
-            std::cerr << e.what() << '\n';
-            std::cerr << "Wrong format of input data\n";
+            cerr << e.what() << '\n';
+            cerr << "Wrong format of input data\n";
             return 1;
         }
         puzzle = new int* [size];
         for (size_t i = 0; i < size; i++)
             puzzle[i] = new int[size];
         generator(puzzle, size);
-    
-
-        //print rez result
-        int **result = new int*[size];
-        for (size_t i = 0; i < size; i++) {
-            result[i] = new int[size];
-            for (size_t j = 0; j < size; j++)
-                result[i][j] = -1;
-        }
-        
-        int max = size - 1, min = 0, i = 0, j = 0;
-        for (size_t count = 1; count <= size * size; count++) {
-            i = min;
-            j = min;
-            for (; j <= max; j++, count++)
-                result[i][j] = (count == (size * size) ? 0 : count);
-            j--;
-            count--;
-            for (; i <= max; i++, count++)
-                result[i][j] = (count == (size * size) ? 0 : count);
-            i--;
-            count--;
-            for (; j >= min; j--, count++)
-                result[i][j] = (count == (size * size) ? 0 : count);
-            j++;
-            count--;
-            for (; i > min; i--, count++)
-                result[i][j] = (count == (size * size) ? 0 : count);
-            count--;
-            min++;
-            max--;
-        }
-
-        std::cout << "full result\n";
-        printArray(result, size);
-        std::cout << "Solvability: " << (checkSolvability(puzzle, size) ? "true" : "false") << std::endl;
-
     }
+    
+    //print rez result
+    int **result = new int*[size];
+    generateResultPuzzle(result, size);
+    cout << "gotten puzzle:\n";
+    printArray(puzzle, size);
+    cout << "full result:\n";
+    printArray(result, size);
+    cout << "Solvability: " << (checkSolvability(puzzle, size) ? "true" : "false") << endl;
 
     return 0;
 }

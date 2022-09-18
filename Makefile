@@ -1,6 +1,6 @@
-CC = clang++
+CC = g++
 FLAGS = -Wall -Wextra -Werror
-SRCS = main.cpp
+SRCS = main.cpp 
 
 OBJ = $(SRCS:.cpp=.o)
 RM = rm -f
@@ -9,7 +9,7 @@ NAME = npuzzle
 %.o: %.cpp
 	$(CC) $(FLAGS) -c $< -o $@
 
-$(NAME): $(OBJ)
+$(NAME): $(OBJ) 
 	$(CC) -o $(NAME) $(OBJ)
 
 all: $(NAME)
