@@ -7,11 +7,20 @@ Tree::~Tree() {
 };
 
 
-Tree::pointer Tree::createNode(std::string data);
+Tree::pointer Tree::createNode(int cost) {
+    Node* node;
 
-void Tree::destoyNode(pointer node);
+    _allocator.allocate(1);
+    _allocator.construct(node, cost);
+    return node;
+};
 
-void Tree::nodeToOut(std::ostream& out, pointer node);
+void Tree::destoyNode(pointer node) {
+    if (node) {
+        _allocator.destroy(node);
+        _allocator.deallocate(node, 1);
+    }
+};
 
 
 Tree::pointer Tree::getRoot() const {
@@ -22,8 +31,25 @@ size_t Tree::getSize() const {
     return _size;
 };
 
-Tree::pointer Tree::find(std::string data, pointer node) const;
+Tree::pointer Tree::find(int cost, pointer node) const {
+    pointer finded;
+    
+    if (node && node->_cost == cost)
+        return node;
+    for (size_t i = 0; i < node->_children.size(); i++) {
+        if ((finded = find(cost, node->_children[i])))
+            return finded;
+    }
+    return NULL;
+};
 
-void Tree::clear(pointer node);
+void Tree::clear(pointer node) {
+    if (node) {
+        for (size_t i = 0; i < node->_children.size(); i++)
+            clear(node->_children[i]);
+        destoyNode(node);
+        node = NULL;
+    }
+};
 
 std::ostream& operator<<(std::ostream& out, Tree& tree);

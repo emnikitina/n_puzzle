@@ -13,10 +13,8 @@ class Tree {
         pointer _root;
         size_t _size;
         
-        pointer createNode(std::string data);
+        pointer createNode(int cost);
         void destoyNode(pointer node);
-
-        void nodeToOut(std::ostream& out, pointer node);
 
     public:
         Tree();
@@ -25,7 +23,7 @@ class Tree {
         pointer getRoot() const;
         size_t getSize() const;
 
-        pointer find(std::string data, pointer node) const;
+        pointer find(int cost, pointer node) const;
         void clear(pointer node);
 
         friend std::ostream& operator<<(std::ostream& out, Tree& tree);
