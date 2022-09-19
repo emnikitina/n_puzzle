@@ -10,6 +10,7 @@ class Node {
         std::vector<Node*> _children;
 
         Node();
+        Node(int cost);
         Node(Node const& copy);
         Node& operator=(Node const& source);
         ~Node();

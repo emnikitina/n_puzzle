@@ -1,6 +1,6 @@
 CC = g++
 FLAGS = -Wall -Wextra -Werror
-SRCS = main.cpp 
+SRCS = main.cpp Node.cpp Tree.cpp Puzzle.cpp
 
 OBJ = $(SRCS:.cpp=.o)
 RM = rm -f
@@ -9,7 +9,7 @@ NAME = npuzzle
 %.o: %.cpp
 	$(CC) $(FLAGS) -c $< -o $@
 
-$(NAME): $(OBJ) 
+$(NAME): $(OBJ) Node.hpp Tree.hpp Puzzle.hpp
 	$(CC) -o $(NAME) $(OBJ)
 
 all: $(NAME)

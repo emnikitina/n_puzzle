@@ -1,4 +1,4 @@
-#include "tree.hpp"
+#include "Tree.hpp"
 
 Tree::Tree(): _allocator(Allocator()), _root(NULL), _size(0) {};
 
@@ -6,11 +6,8 @@ Tree::~Tree() {
     clear(_root);
 };
 
-
 Tree::pointer Tree::createNode(int cost) {
-    Node* node;
-
-    _allocator.allocate(1);
+    Node* node = _allocator.allocate(1);
     _allocator.construct(node, cost);
     return node;
 };

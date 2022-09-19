@@ -7,6 +7,8 @@ Node::Node(Node const& copy): _cost(copy._cost), _parent(copy._parent) {
     _children = copy._children;
 };
 
+Node::Node(int cost): _cost(cost), _parent(NULL), _children(std::vector<Node*>()) {};
+
 Node& Node::operator=(Node const& source) {
     if (this != &source) {
         _cost = source._cost;
