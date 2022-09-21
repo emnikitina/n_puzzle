@@ -10,9 +10,12 @@ Puzzle::Puzzle(size_t size): _size(size) {
         _result[i] = new int[_size];
     }
     generator();
-    // printArray(_puzzle);
     setRezultPuzzle();
-    // printArray(_result);
+
+    std::cout << "puzzle: \n";
+    printArray(_puzzle);
+    std::cout << "result: \n";
+    printArray(_result);
 };
 
 Puzzle::Puzzle(char* filename) {
@@ -24,12 +27,16 @@ Puzzle::Puzzle(char* filename) {
 };
 
 Puzzle::~Puzzle() {
-    // for (size_t i = 0; i < _size; i++) {
-    //     delete[] _puzzle[i];
-    //     delete[] _result[i];
-    // }
-    // delete[] _puzzle;
-    // delete[] _result;
+    // if (_puzzle) {
+	// 	for (size_t i = 0; i < _size; i++)
+	// 		delete[] _puzzle[i];
+	// 	delete[] _puzzle;
+	// }
+	// if (_result) {
+	// 	for (size_t i = 0; i < _size; i++)
+    //     	delete[] _result[i];
+	// 	delete[] _result;
+	// }
     _nbrPlaces.clear();
 };
 
@@ -188,4 +195,34 @@ bool Puzzle::checkSolvability() {
             inv += (1 + i / _size);
 
     return (inv & 1);
+};
+
+int Puzzle::ManhattanHeuristics(int Ax, int Ay, int Bx, int By) {
+    return abs(Ax - Bx) + abs(Ay - By);
+};
+
+float Puzzle::EuclidDistance(int Ax, int Ay, int Bx, int By) {
+    return sqrt(pow(Ax - Bx, 2) + pow(Ay - By, 2));
+};
+
+int Puzzle::ChebyshevHeuristics(int Ax, int Ay, int Bx, int By) {
+    return std::max(abs(Ax - Bx), abs(Ay - By));
+};
+
+void Puzzle::calculateCost(Node* node) {
+	for (size_t i = 0; i < _size; i++) {
+		for (size_t j = 0; j < _size; j++) {
+			if (_heusistic == manhattan)
+				node->_cost = ManhattanHeuristics(i, j, _nbrPlaces[node->_puzzleState[i][j]].first, _nbrPlaces[node->_puzzleState[i][j]].second);
+			else if (_heusistic == euclid)
+				node->_cost = EuclidDistance(i, j, _nbrPlaces[node->_puzzleState[i][j]].first, _nbrPlaces[node->_puzzleState[i][j]].second);
+			else if (_heusistic == chebyshev)
+				node->_cost = ChebyshevHeuristics(i, j, _nbrPlaces[node->_puzzleState[i][j]].first, _nbrPlaces[node->_puzzleState[i][j]].second);
+		}
+	}
+};
+
+void	Puzzle::solve() {
+	
+
 };

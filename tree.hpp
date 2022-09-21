@@ -13,7 +13,7 @@ class Tree {
         pointer _root;
         size_t _size;
         
-        pointer createNode(int cost);
+        pointer createNode(int** puzzle, size_t size);
         void destoyNode(pointer node);
 
     public:

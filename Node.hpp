@@ -6,11 +6,13 @@
 class Node {
     public:
         int     _cost;
+        size_t  _size;
+        int**   _puzzleState;
         Node*   _parent;
         std::vector<Node*> _children;
 
         Node();
-        Node(int cost);
+        Node(int** puzzle, size_t size);
         Node(Node const& copy);
         Node& operator=(Node const& source);
         ~Node();

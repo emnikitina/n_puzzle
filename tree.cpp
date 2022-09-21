@@ -6,9 +6,9 @@ Tree::~Tree() {
     clear(_root);
 };
 
-Tree::pointer Tree::createNode(int cost) {
+Tree::pointer Tree::createNode(int** puzzle, size_t size) {
     Node* node = _allocator.allocate(1);
-    _allocator.construct(node, cost);
+    _allocator.construct(node, puzzle, size);
     return node;
 };
 

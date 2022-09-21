@@ -10,32 +10,15 @@ int main(int argc, char** argv) {
         return 1;
     }
     else if (argc == 2) {
-        // open file and read data
         std::cout << argv[1] << std::endl;
-        // try
-        // {
-            npuzzle = Puzzle(argv[1]);
-        // }
-        // catch(const exception& e)
-        // {
-        //     std::cerr << e.what() << '\n';
-        // }
+        npuzzle = Puzzle(argv[1]);
     }
     else {
         std::cout << "Input field size, please:\n";
         getline(std::cin, str);
-        // try
-        // {
-            npuzzle = Puzzle(std::stoi(str));
-            
-        // }
-        // catch(const exception& e)
-        // {
-        //     std::cerr << e.what() << '\n';
-        //     std::cerr << "Wrong format of input data\n";
-        //     return 1;
-        // }
+        npuzzle = Puzzle(std::stoi(str));
     }
     std::cout << "Solvability: " << npuzzle.checkSolvability() << std::endl;
+    
     return 0;
 }

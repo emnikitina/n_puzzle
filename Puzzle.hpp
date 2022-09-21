@@ -6,7 +6,13 @@
 
 #include <fstream>
 #include <sstream>
+
+#include <queue>
+#include <cmath>
+
 #include "Tree.hpp"
+
+enum heuristic {manhattan, euclid, chebyshev};
 
 class Puzzle {
     private:
@@ -14,11 +20,19 @@ class Puzzle {
         int**                                               _puzzle;
         int**                                               _result;
         std::unordered_map<int, std::pair<size_t, size_t> > _nbrPlaces;
+        std::priority_queue<Node*>                          _openSet;
+        std::priority_queue<Node*>                          _closeSet;
+        Tree                                                _states;
+		int													_heusistic;
 
 		void												printArray(int** arr);
 		void												generator();
 		std::string											getPureLine(std::string line);
 		void												parse(char* filename);
+        void                                                 calculateCost(Node* node);
+		int													ManhattanHeuristics(int Ax, int Ay, int Bx, int By);
+		float												EuclidDistance(int Ax, int Ay, int Bx, int By);
+		int													ChebyshevHeuristics(int Ax, int Ay, int Bx, int By);
 
     public:
        Puzzle();
@@ -36,4 +50,5 @@ class Puzzle {
        void                                                 setRezultPuzzle();
 
 	   bool													checkSolvability();
+       void                                                 solve();
 };
