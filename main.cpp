@@ -1,5 +1,8 @@
 #include "tree.hpp"
 #include "puzzle.hpp"
+#include <string.h>
+#include <string>
+#include <algorithm>
 
 int writeError() {
     std::cerr << "Error! Wrong number of arguments" << std::endl;
@@ -15,36 +18,44 @@ int main(int argc, char** argv) {
     // std::cout << "stoi(str): " << std::stoi(argv[1]) << std::endl;
     Puzzle npuzzle;
     std::string str;
-    int heuristic, shuffle = -1;
+    int shuffle = -1, heuristic;
     
     if (argc == 1)
         return writeError();
     else {
-        for (size_t i = 1; i < argc; i++) {
-            if (argv[i] == "-s") {
+        for (int i = 1; i < argc; i++) {
+            if (!strcmp(argv[i], "-s")) {
                 if (i == argc - 1)
                     return writeError();
                 npuzzle =  Puzzle(std::stoi(argv[i + 1]));
             }
-            else if (argv[i] == "-f") {
+            else if (!strcmp(argv[i], "-f")) {
                 if (i == argc - 1)
                     return writeError();
                 npuzzle =  Puzzle(argv[i + 1]);
             }
-            else if (argv[i] == "-h") {
+            else if (!strcmp(argv[i], "-h")) {
                 if (i == argc - 1)
                     return writeError();
-                heuristic = std::stoi(argv[i + 1]);
+                if (!strcmp(argv[i], "manhatten"))
+                    heuristic = manhattan;
+                else if (!strcmp(argv[i], "chebyshev"))
+                    heuristic = chebyshev;
+                else if (!strcmp(argv[i], "euclid"))
+                    heuristic = euclid;
+                std::cout << " heuristic: " << heuristic << std::endl;
             }
-            else if (argv[i] == "-shuffle") {
+            else if (!strcmp(argv[i], "-shuffle")) {
                 if (i == argc - 1)
                     return writeError();
-                shuffle = std::stoi(argv[i + 1]);
+                str = argv[i + 1];
+                shuffle = std::stoi(str);
             }
                 
         }
 
     }
+    std::cout << "shuffle: " << shuffle << " heuristic: " << heuristic << std::endl;
     // if (shuffle != -1)
     //     npuzzle.setShuffle(shuffle);
     // npuzzle.setHeuristic(heuristic);

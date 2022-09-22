@@ -51,16 +51,19 @@ void Puzzle::printArray(int** arr) {
 std::string Puzzle::getPureLine(std::string line) {
     size_t pos;
 
+    std::cout << "line: |" << line << "|" << std::endl;
     if ((pos = line.find_first_of("#")) != std::string::npos)
             line = line.substr(0, pos);
+    // std::cout << "line: |" << line << "|" << std::endl;
     size_t found = line.find_first_not_of("1234567890 ");
     if (found != std::string::npos) {
+        std::cout << "pos: " << found << std::endl;
         std::cout << "ой, есть не цифровой символ " << line[found] << " в позиции " << found << std::endl;
         throw ;
     }
-    // else {
-    //     cout << "Все ок!" << endl;
-    // }
+    else {
+        std::cout << "Все ок!" << std::endl;
+    }
     return line;
 }
 
@@ -98,9 +101,12 @@ void Puzzle::parse(char* filename) {
     fin.open(filename);
     if (!fin.is_open())
         throw ;
-
+    _size = 0;
+    std::cout << "_size: " << _size << std::endl;
     while (!_size && getline(fin, line)) {
+        std::cout << "line: |" << line << "|" << std::endl;
         str = getPureLine(line);
+        std::cout << "str: " << str << std::endl;
         if (str.size())
             _size = stoi(str);
     }
@@ -108,7 +114,9 @@ void Puzzle::parse(char* filename) {
     for (size_t i = 0; i < _size; i++) {
         _puzzle[i] = new int[_size];
         getline(fin, line);
+        std::cout << "line: " << line << std::endl;
         str = getPureLine(line);
+        std::cout << "pure str: " << str << std::endl;
         x << str;   //Перенос строки в поток 
         j = 0;            
         while (x >> nbr) {
