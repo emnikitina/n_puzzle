@@ -28,6 +28,10 @@ size_t Tree::getSize() const {
     return _size;
 };
 
+void Tree::setRoot(int** puzzle, size_t size) {
+    _root = createNode(puzzle, size);
+};
+
 Tree::pointer Tree::find(int cost, pointer node) const {
     pointer finded;
     

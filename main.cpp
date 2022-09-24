@@ -4,6 +4,8 @@
 #include <string>
 #include <algorithm>
 
+enum genType {OWNFILE, GENERATOR};
+
 int writeError() {
     std::cerr << "Error! Wrong number of arguments" << std::endl;
     std::cerr << "Please, use the next flags:" << std::endl;
@@ -15,21 +17,22 @@ int writeError() {
 }
 
 int main(int argc, char** argv) {
-    // std::cout << "stoi(str): " << std::stoi(argv[1]) << std::endl;
     Puzzle npuzzle;
     std::string str;
-    int shuffle = -1, heuristic;
+    int shuffle = -1, heuristic = -1, sourseType = -1;
     
     if (argc == 1)
         return writeError();
     else {
         for (int i = 1; i < argc; i++) {
             if (!strcmp(argv[i], "-s")) {
+                sourseType = GENERATOR;
                 if (i == argc - 1)
                     return writeError();
                 npuzzle =  Puzzle(std::stoi(argv[i + 1]));
             }
             else if (!strcmp(argv[i], "-f")) {
+                sourseType = OWNFILE;
                 if (i == argc - 1)
                     return writeError();
                 npuzzle =  Puzzle(argv[i + 1]);
@@ -37,45 +40,35 @@ int main(int argc, char** argv) {
             else if (!strcmp(argv[i], "-h")) {
                 if (i == argc - 1)
                     return writeError();
-                if (!strcmp(argv[i], "manhatten"))
+                if (!strcmp(argv[i + 1], "manhattan"))
                     heuristic = manhattan;
-                else if (!strcmp(argv[i], "chebyshev"))
+                else if (!strcmp(argv[i + 1], "chebyshev"))
                     heuristic = chebyshev;
-                else if (!strcmp(argv[i], "euclid"))
+                else if (!strcmp(argv[i + 1], "euclid"))
                     heuristic = euclid;
-                std::cout << " heuristic: " << heuristic << std::endl;
             }
             else if (!strcmp(argv[i], "-shuffle")) {
                 if (i == argc - 1)
                     return writeError();
                 str = argv[i + 1];
                 shuffle = std::stoi(str);
-            }
-                
+            }       
         }
-
+        std::cout << "shuffle: " << shuffle << " heuristic: " << heuristic << std::endl;
+        if (heuristic == -1 || (sourseType == GENERATOR && shuffle == -1))
+            return writeError();
     }
-    std::cout << "shuffle: " << shuffle << " heuristic: " << heuristic << std::endl;
+   
     // if (shuffle != -1)
     //     npuzzle.setShuffle(shuffle);
     // npuzzle.setHeuristic(heuristic);
     
-    /*if (argc > 2) {
-        std::cerr << "Error! Wrong number of arguments\n";
-        return 1;
+    if (npuzzle.checkSolvability()) {
+        std::cout << "Solvability: " << std::boolalpha << true << std::endl;
+        npuzzle.solve();
     }
-    else if (argc == 2) {
-        std::cout << argv[1] << std::endl;
-        npuzzle = Puzzle(argv[1]);
-    }
-    else {
-        std::cout << "Input field size, please:\n";
-        getline(std::cin, str);
-        npuzzle = Puzzle(std::stoi(str));
-    }*/
-
-
-    std::cout << "Solvability: " << npuzzle.checkSolvability() << std::endl;
+    else
+        std::cout << "Solvability: " << std::boolalpha << false << "\nPlease generate puzzle again or put to programm another file\n";
     
     return 0;
 }

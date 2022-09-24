@@ -1,5 +1,5 @@
 CC = g++
-FLAGS = -Wall -Wextra -Werror
+FLAGS = -Wall -Wextra -Werror -g
 SRCS = main.cpp Node.cpp Tree.cpp Puzzle.cpp
 
 OBJ = $(SRCS:.cpp=.o)
