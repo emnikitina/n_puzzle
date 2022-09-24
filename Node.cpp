@@ -14,7 +14,7 @@ Node::Node(Node const& copy): _cost(copy._cost), _size(copy._size), _parent(copy
     }
 };
 
-Node::Node(int** puzzle, size_t size): _cost(0), _parent(NULL), _children(std::vector<Node*>()) {
+Node::Node(int** puzzle, size_t size): _cost(0), _size(size), _parent(NULL), _children(std::vector<Node*>()) {
     _puzzleState = new int* [size];
     for (size_t i = 0; i < size; i++) {
         _puzzleState[i] = new int[size];
