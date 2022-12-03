@@ -1,8 +1,8 @@
 #include "Puzzle.hpp"
 
-Puzzle::Puzzle(): _size(0), _puzzle(NULL), _result(NULL), _nbrPlaces(std::unordered_map<int, std::pair<size_t, size_t> >()), _openSet(std::priority_queue<Node*>()), _closeSet(std::priority_queue<Node*>()), _states(Tree()), _heuristic(-1), _emptyCell(std::make_pair(-1, -1)), _depth(0) {};
+Puzzle::Puzzle(): _size(0), _puzzle(NULL), _result(NULL), _nbrPlaces(std::unordered_map<int, std::pair<size_t, size_t> >()), _states(Tree()), _heuristic(-1), _emptyCell(std::make_pair(-1, -1)), _depth(0), _path("") {};
 
-Puzzle::Puzzle(size_t size): _size(size), _nbrPlaces(std::unordered_map<int, std::pair<size_t, size_t> >()), _openSet(std::priority_queue<Node*>()), _closeSet(std::priority_queue<Node*>()), _states(Tree()), _heuristic(-1), _emptyCell(std::make_pair(-1, -1)), _depth(0) {
+Puzzle::Puzzle(size_t size): _size(size), _nbrPlaces(std::unordered_map<int, std::pair<size_t, size_t> >()), _states(Tree()), _heuristic(-1), _emptyCell(std::make_pair(-1, -1)), _depth(0), _path("") {
     _puzzle = new int* [_size];
     _result = new int* [_size];
     for (size_t i = 0; i < _size; i++) {
@@ -18,7 +18,7 @@ Puzzle::Puzzle(size_t size): _size(size), _nbrPlaces(std::unordered_map<int, std
     printArray(_result);
 };
 
-Puzzle::Puzzle(char* filename): _size(0), _nbrPlaces(std::unordered_map<int, std::pair<size_t, size_t> >()), _openSet(std::priority_queue<Node*>()), _closeSet(std::priority_queue<Node*>()), _states(Tree()), _heuristic(-1), _emptyCell(std::make_pair(-1, -1)), _depth(0) {
+Puzzle::Puzzle(char* filename): _size(0), _nbrPlaces(std::unordered_map<int, std::pair<size_t, size_t> >()), _states(Tree()), _heuristic(-1), _emptyCell(std::make_pair(-1, -1)), _depth(0), _path("") {
     parse(filename);
     _result = new int* [_size];
     for (size_t i = 0; i < _size; i++)
@@ -201,7 +201,7 @@ void	Puzzle::setHeuristic(int heuristic) {
 };
 
 bool Puzzle::checkSolvability() {
-    int n = 0, k = 0;
+    int inv = 0;
 
 	for (size_t i = 0; i < _size; i++) {
 		for (size_t j = 0; j < _size; j++) {
@@ -209,15 +209,15 @@ bool Puzzle::checkSolvability() {
 				for (size_t l = 0; l < i; l++) {
 					for (size_t m = 0; m < j; m++) {
 						if (_puzzle[l][m] && _puzzle[l][m] > _puzzle[i][j])
-							n++;
+							inv++;
 					}
 				}
 			}
 			else
-				k = i + 1;
+                inv += (1 + float(i + j) / _size);
 		}
 	}
-	return (!((n + k + _size) % 2));
+    return (inv & 1);
 };
 
 // float	Puzzle::ManhattanHeuristics(int Ax, int Ay, int Bx, int By) {
@@ -248,34 +248,39 @@ bool Puzzle::checkSolvability() {
 bool Puzzle::emptyRight() {
     int tmp;
 
+	// std::cout << "before empty cell i: " << _emptyCell.first << " j: " << _emptyCell.second << std::endl;
     if (_emptyCell.second != -1 && _emptyCell.second != int(_size) - 1) {
         tmp = _puzzle[_emptyCell.first][_emptyCell.second + 1];
         _puzzle[_emptyCell.first][_emptyCell.second + 1] = 0;
         _puzzle[_emptyCell.first][_emptyCell.second] = tmp;
+        _emptyCell.second++;
+        // std::cout << "after empty cell i: " << _emptyCell.first << " j: " << _emptyCell.second << std::endl;
 		return true;
     }
 	return false;
 };
 
-bool Puzzle::emptyLeft() {
+/*bool Puzzle::emptyLeft() {
     int tmp;
     
-    if (_emptyCell.second != -1 && _emptyCell.second != 0) {
+	if (_emptyCell.second != -1 && _emptyCell.second != 0) {
 		tmp = _puzzle[_emptyCell.first][_emptyCell.second - 1];
 		_puzzle[_emptyCell.first][_emptyCell.second - 1] = 0;
 		_puzzle[_emptyCell.first][_emptyCell.second] = tmp;
-		return true;
+        _emptyCell.second--;
+        return true;
     }
 	return false;
 };
 bool Puzzle::emptyUp() {
     int tmp;
     
-    if (_emptyCell.first != -1 && _emptyCell.first != 0) {
+	if (_emptyCell.first != -1 && _emptyCell.first != 0) {
 		tmp = _puzzle[_emptyCell.first - 1][_emptyCell.second];
 		_puzzle[_emptyCell.first - 1][_emptyCell.second] = 0;
 		_puzzle[_emptyCell.first][_emptyCell.second] = tmp;
-		return true;
+        _emptyCell.first--;
+        return true;
     }
 	return false;
 };
@@ -283,100 +288,236 @@ bool Puzzle::emptyUp() {
 bool Puzzle::emptyDown() {
     int tmp;
     
-    if (_emptyCell.first != -1 && _emptyCell.first != int(_size) - 1) {
+	if (_emptyCell.first != -1 && _emptyCell.first != int(_size) - 1) {
 		tmp = _puzzle[_emptyCell.first + 1][_emptyCell.second];
 		_puzzle[_emptyCell.first + 1][_emptyCell.second] = 0;
 		_puzzle[_emptyCell.first][_emptyCell.second] = tmp;
-		return true;
+        _emptyCell.first++;
+        return true;
     }
 	return false;
-};
+};*/
 
-/* bool	Puzzle::emptyRight(int** modifiedPuzzle) {
-	int tmp;
-
-	for (size_t i = 0; i < _size; i++) {
-		for (size_t j = 0; j < _size; j++) {
-			// if (i == _emptyCell.first && j == _emptyCell.second)
-			modifiedPuzzle[i][j] == _puzzle[i][j];
-		}
-	}
-    if (_emptyCell.second != -1 && _emptyCell.second != int(_size) - 1) {
-        tmp = modifiedPuzzle[_emptyCell.first][_emptyCell.second + 1];
-        modifiedPuzzle[_emptyCell.first][_emptyCell.second + 1] = 0;
-        modifiedPuzzle[_emptyCell.first][_emptyCell.second] = tmp;
-		return true;
-    }
-	return false;
-
-};
-
-bool 	Puzzle::emptyLeft(int** modifiedPuzzle) {
-
-};
-
-bool 	Puzzle::emptyUp(int** modifiedPuzzle) {
-
-};
-
-bool 	Puzzle::empthDown(int** modifiedPuzzle) {
-
-}; */
-
-bool	compareState(int** puzzle, int** result, size_t size) {
+bool	Puzzle::compareState(int** puzzle) {
 	size_t count = 0;
 	
-	for (size_t i = 0; i < size; i++) {
-		for (size_t j = 0; j < size; j++) {
-			if (puzzle[i][j] == result[i][j])
+	for (size_t i = 0; i < _size; i++) {
+		for (size_t j = 0; j < _size; j++) {
+			if (puzzle[i][j] == _result[i][j])
 				count++;
 		}
 	}
-	std::cout << (count == (size * size)) << std::endl;
-	return (count == (size * size));
+	std::cout << (count == (_size * _size)) << std::endl;
+	return (count == (_size * _size));
 };
 
+void Puzzle::clearPriorityQueue(std::priority_queue<Node*, std::vector<Node*> /*, lessNode*/ > priQueue) {
+    while (!priQueue.empty())
+        priQueue.pop();
+};
+
+void Puzzle::changeEmptyCoordinates(int direction) {
+    if (direction == right)
+        _emptyCell.second++;
+    else if (direction == left)
+        _emptyCell.second--;
+    else if (direction == up)
+        _emptyCell.first--;
+    else if (direction == down)
+        _emptyCell.first++;
+};
+
+/*void Puzzle::changeNode(Node* node, int direction) {
+    node->_children.push_back(_states.createNode(node->_puzzleState, _size));
+    node->_children.back()->calculateCost(_heuristic, _depth, _nbrPlaces);
+    node->_children.back()->_direction = direction;
+    // std::cout << "new state\n";
+	// printArray(node->_children.back()->_puzzleState); // REMOVE
+	// std::cout << "new state cost: " << node->_children.back()->_cost << std::endl;
+	// node->_children.back()->_parent = node;
+    _openSet.push(node->_children.back());
+};*/
+
+bool findeNodeInPriQueue(Node* node, std::priority_queue<Node*, std::vector<Node*> /*, lessNode*/ > priQueue) {
+    std::priority_queue<Node*, std::vector<Node*> /*, lessNode*/ > copy = priQueue;
+
+    while (copy.size()) {
+        if (node == copy.top())
+            return true;
+        copy.pop();
+    }
+    return false;
+};
+
+void Puzzle::changeNode(Node* node /*, int direction*/ ) {
+    /*bool finded = false;
+    std::priority_queue<Node*, std::vector<Node*>, lessNode> copyOpenSet = _openSet;
+    
+    while (copyOpenSet.size()) {
+        if (node == copyOpenSet.top())
+            finded = true;
+    }
+    clearPriorityQueue(copyOpenSet);
+    
+    if (!finded && (_closeSet.find(node) == _closeSet.end())) {*/
+        node->_children.push_back(_states.createNode(node->_puzzleState, _size));
+        node->_children.back()->calculateCost(_heuristic, _nbrPlaces);
+        // node->_children.back()->_direction = direction;
+        // _openSet.push(node->_children.back());
+    //}
+    // else {
+    //     /// ???????
+    //     if () {
+    //         if () {
+
+    //         }
+    //     }
+    // }    
+};
+
+void printPriQueue(std::priority_queue<Node*, std::vector<Node*> > priQueue) {
+    std::priority_queue<Node*, std::vector<Node*> > copy = priQueue;
+    
+    std::cout << "open set: \n";
+    while (copy.size()) {
+        std::cout << *copy.top();
+        copy.pop();
+    }    
+}
+
+std::vector<Node*> Puzzle::makeChildren(Node* node) {
+	std::vector<Node*> children;
+
+	if (node->emptyRight()) {
+		children.push_back(_states.createNode(node->_puzzleState, _size));
+        children.back()->calculateCost(_heuristic, _nbrPlaces);
+		node->emptyLeft();
+	}
+	if (node->emptyLeft()) {
+		children.push_back(_states.createNode(node->_puzzleState, _size));
+        children.back()->calculateCost(_heuristic, _nbrPlaces);
+		node->emptyRight();
+	}
+	if (node->emptyUp()) {
+		children.push_back(_states.createNode(node->_puzzleState, _size));
+        children.back()->calculateCost(_heuristic, _nbrPlaces);
+		node->emptyDown();
+	}
+	if (node->emptyDown()) {
+		children.push_back(_states.createNode(node->_puzzleState, _size));
+        children.back()->calculateCost(_heuristic, _nbrPlaces);
+		node->emptyUp();
+	}
+	return children;
+
+};
+
+/*bool findOpenSet(std::priority_queue<std::pair<int, Node*> >  openSet, Node* node) {
+
+
+
+}*/
+
 void	Puzzle::solve() {
-	std::cout << "tree size: " << _states.getSize() << std::endl;
-	// Node *node = _states.createNode(_puzzle, _size);
-	// node->calculateCost(_heuristic, _depth, _nbrPlaces);
-	
-	Node* node;
-	std::cout << "_size: " << _size << std::endl;
+	Node												node;
+	Node*												tmp;
+    std::chrono::time_point<std::chrono::steady_clock>	end, start = std::chrono::steady_clock::now();
+	std::priority_queue<std::pair<int, Node*> >			openQueue;
+    // std::set<Node*>										closeSet;
+	std::vector<Node*>									children;
+	std::set<int**>										openSet, closeSet;
+	bool												success = false;
+	size_t												size;
+
+	node = Node(_puzzle, _size);
+	children = makeChildren(&node);
+	size = children.size();
+	for (size_t i = 0; i < size; ++i) {
+		openSet.insert(children[i]->_puzzleState);
+		openQueue.push({children[i]->_cost, children[i]});
+	}
+	while (!openSet.empty() && !success) {
+		tmp = openQueue.top().second;
+		if (compareState(tmp->_puzzleState)) {
+			_solutionNode = tmp;
+			success = true;
+			break ;
+		}
+	}
+}
+
+
+void	Puzzle::solve() {
+    Node*												node = NULL;
+    std::chrono::time_point<std::chrono::steady_clock>	end, start = std::chrono::steady_clock::now();
+	std::priority_queue<std::pair<int, Node*> >			openSet;
+    std::set<Node*>										closeSet;
+	std::vector<Node*>									children;
+
+
 	_states.setRoot(_puzzle, _size);
-	std::cout << "oks1\n";
-	std::cout << "_size: " << _size << std::endl;
-	_states.getRoot()->calculateCost(_heuristic, _depth, _nbrPlaces);
-	std::cout << "roor cost: " << _states.getRoot()->_cost << std::endl;
-	
-	node = _states.getRoot();
-	while (!compareState(_puzzle, _result, _size)) {
-		printArray(node->_puzzleState);
-		if (emptyRight()) {
-			node->_children.push_back(_states.createNode(_puzzle, _size));
-			node->_children.back()->calculateCost(_heuristic, _depth, _nbrPlaces);
-			emptyLeft();
-			_openSet.push(node->_children.back());
-		}
-		if (emptyLeft()) {
-			node->_children.push_back(_states.createNode(_puzzle, _size));
-			node->_children.back()->calculateCost(_heuristic, _depth, _nbrPlaces);
-			emptyRight();
-			_openSet.push(node->_children.back());
-		}
-		if (emptyUp()) {
-			node->_children.push_back(_states.createNode(_puzzle, _size));
-			node->_children.back()->calculateCost(_heuristic, _depth, _nbrPlaces);
-			emptyDown();
-			_openSet.push(node->_children.back());
-		}
-		if (emptyDown()) {
-			node->_children.push_back(_states.createNode(_puzzle, _size));
-			node->_children.back()->calculateCost(_heuristic, _depth, _nbrPlaces);
-			emptyLeft();
-			_openSet.push(node->_children.back());
-		}
-		node = _openSet.top();
-		// printArray(node->_puzzleState);
-	}	
+	_states.getRoot()->calculateCost(_heuristic, _nbrPlaces);
+    openSet.push(std::make_pair(_states.getRoot()->_cost + _depth ,  _states.getRoot()));
+    // printPriQueue(_openSet);
+    while (openSet.size()) {
+        node = openSet.top().second;
+        std::cout << "lowest node: " << *node;
+        _sizeComplexity++;
+        if (compareState(node->_puzzleState, _result, _size)) {
+            _solutionNode = node;
+            break;
+        }
+        else {
+            openSet.pop(); // opened - state
+            closeSet.insert(node);
+		
+			/*std::cout << "close set:\n";
+			for (std::set<Node*>::iterator it = closeSet.begin(); it != closeSet.end(); it++)
+				std::cout << **it << " "; */
+            
+			children = makeChildren(node);
+            /*std::cout << "node children: \n";
+            for (size_t i = 0; i < children.size(); i++) {
+                std::cout << *children[i] << std::endl;
+            }*/
+            // _closeSet.insert( ??? );
+            for (size_t i = 0; i < children.size(); i++) {
+				if (children[i] ) {
+                    
+                }
+                if (compareState(children[i]->_puzzleState, _result, _size)) {
+					node->_children.push_back(children[i]);
+					node->_children.back()->_parent = node;
+					_solutionNode = node->_children.back();
+                    break;
+				}
+                else if (closeSet.find(children[i]) == closeSet.end()) {
+					openSet.push(std::make_pair(children[i]->_cost + _depth, children[i]));
+					node->_children.push_back(children[i]);
+				}
+            }
+        }
+           
+        std::cout << "new node: " << *node;
+        
+        std::cout << "depth: " << _depth << std::endl;
+        /*std::cout << "new puzzle state: " << std::endl;
+        for (size_t i = 0; i < _size; i++) {
+            for (size_t j = 0; j < _size; j++) {
+                _puzzle[i][j] = _openSet.top()->_puzzleState[i][j];
+                std::cout << _puzzle[i][j] << " ";
+            }
+            std::cout << std::endl;
+        }*/
+        // changeEmptyCoordinates(node->_direction);
+        // std::cout << "priority queue\n";
+        // while (!_openSet.empty()) {
+        //     std::cout << _openSet.top()->_cost << std::endl;
+        //     _openSet.pop();
+        // }
+		_depth++;
+        sleep(1);
+    }
+    end = std::chrono::steady_clock::now();
+    std::cout << "work time: " << (end - start).count() << "s" << std::endl;
 };

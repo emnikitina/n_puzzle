@@ -16,6 +16,13 @@ int writeError() {
     return -1;
 }
 
+int checkArgv(int argc, char** argv) {
+    bool		size, shuffle, heuristic;
+    std::string	filename;
+
+    return EXIT_SUCCESS;
+}
+
 int main(int argc, char** argv) {
     Puzzle npuzzle;
     std::string str;
@@ -54,9 +61,10 @@ int main(int argc, char** argv) {
                 shuffle = std::stoi(str);
             }       
         }
-        std::cout << "shuffle: " << shuffle << " heuristic: " << heuristic << std::endl;
+        // std::cout << "shuffle: " << shuffle << " heuristic: " << heuristic << std::endl;
         if (heuristic == -1 || (sourseType == GENERATOR && shuffle == -1))
             return writeError();
+        npuzzle.setHeuristic(heuristic);
     }
    
     // if (shuffle != -1)
@@ -64,11 +72,12 @@ int main(int argc, char** argv) {
     // npuzzle.setHeuristic(heuristic);
     
     if (npuzzle.checkSolvability()) {
-        std::cout << "Solvability: " << std::boolalpha << true << std::endl;
+        // std::cout << "Solvability: " << std::boolalpha << true << std::endl;
         npuzzle.solve();
     }
     else
-        std::cout << "Solvability: " << std::boolalpha << false << "\nPlease generate puzzle again or put to programm another file\n";
+        std::cout << "Solvability: false" << std::endl;
+		std::cout << "Please generate puzzle again or put to programm another file" << std::endl;
     
     return 0;
 }
